@@ -6,6 +6,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Make 100</Text>
       <Button title="Jouer" onPress={() => router.push('/game')} />
+      <Button title="Scanner" onPress={() => router.push('/scan')} />
     </View>
   );
 }
