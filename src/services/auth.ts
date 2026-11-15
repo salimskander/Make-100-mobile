@@ -3,16 +3,35 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   signInWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth';
 
 import { auth } from '@/services/firebase';
+
+// Firebase connecte automatiquement un compte qu'on vient de créer.
+// Pendant l'inscription, useAuth ignore ces changements,
+// pour que le joueur passe ensuite par l'écran de connexion.
+let isSigningUp = false;
+
+export function isSignUpInProgress(): boolean {
+  return isSigningUp;
+}
 
 export async function signIn(email: string, password: string): Promise<void> {
   await signInWithEmailAndPassword(auth, email.trim(), password);
 }
 
-export async function signUp(email: string, password: string): Promise<void> {
-  await createUserWithEmailAndPassword(auth, email.trim(), password);
+export async function signUp(pseudo: string, email: string, password: string): Promise<void> {
+  isSigningUp = true;
+  try {
+    const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
+    // Le pseudo est enregistré dans le profil Firebase du joueur
+    await updateProfile(user, { displayName: pseudo.trim() });
+  } finally {
+    // Dans tous les cas (succès ou erreur), on ne laisse personne connecté
+    await firebaseSignOut(auth);
+    isSigningUp = false;
+  }
 }
 
 export async function signOut(): Promise<void> {
