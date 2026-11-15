@@ -1,8 +1,7 @@
 import { Stack } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/hooks/use-auth';
-import { signOut } from '@/services/auth';
 
 export default function RootLayout() {
   const { user, isLoading } = useAuth();
@@ -22,17 +21,10 @@ export default function RootLayout() {
     <Stack>
       {/* Écrans réservés aux joueurs connectés */}
       <Stack.Protected guard={isLoggedIn}>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: 'Make 100',
-            headerRight: () => (
-              <Pressable onPress={() => signOut()} hitSlop={8}>
-                <Text style={styles.logout}>Déconnexion</Text>
-              </Pressable>
-            ),
-          }}
-        />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="game" options={{ title: 'Partie' }} />
+        <Stack.Screen name="result" options={{ title: 'Résultat' }} />
+        <Stack.Screen name="scan" options={{ title: 'Scanner' }} />
       </Stack.Protected>
 
       {/* Écrans accessibles uniquement sans être connecté */}
@@ -49,9 +41,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  logout: {
-    color: '#2563EB',
-    fontWeight: '600',
   },
 });
