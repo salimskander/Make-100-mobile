@@ -33,6 +33,13 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Make 100 utilise l'appareil photo pour lire les chiffres d'une photo et créer une partie.",
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {
