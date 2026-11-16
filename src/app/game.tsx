@@ -6,6 +6,7 @@ import { ExpressionView } from '@/components/expression-view';
 import { Keyboard } from '@/components/keyboard';
 import { checkExpression } from '@/domain/check-expression';
 import { generateDigits } from '@/domain/generate-digits';
+import { solve } from '@/domain/solve';
 import { canRemove, createTokens, insertAt, removeAt, tokenToText } from '@/domain/tokens';
 import type { CheckResult, Token } from '@/domain/types';
 import { useTimer } from '@/hooks/use-timer';
@@ -59,6 +60,11 @@ export default function GameScreen() {
     router.replace({ pathname: '/result', params: { ms: timer.elapsedMs(), expression } });
   }
 
+  function handleGiveUp() {
+    const solution = solve(digits);
+    router.replace({ pathname: '/result', params: { solution: solution ? `${solution} = 100` : 'Résultat impossible' } });
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.timer}>{timer.seconds} s</Text>
@@ -66,6 +72,7 @@ export default function GameScreen() {
       <Text style={styles.message}>{toMessage(result)}</Text>
       <Keyboard onKey={handleKey} onRemove={handleRemove} />
       <Button title="Valider" onPress={handleValidate} />
+      <Button title="Abandonner" onPress={handleGiveUp} />
       <Button title="Nouveau tirage" onPress={handleNewDraw} />
     </View>
   );
