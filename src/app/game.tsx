@@ -6,7 +6,7 @@ import { ExpressionView } from '@/components/expression-view';
 import { Keyboard } from '@/components/keyboard';
 import { checkExpression } from '@/domain/check-expression';
 import { generateDigits } from '@/domain/generate-digits';
-import { canRemove, createTokens, insertAt, removeAt } from '@/domain/tokens';
+import { canRemove, createTokens, insertAt, removeAt, tokenToText } from '@/domain/tokens';
 import type { CheckResult, Token } from '@/domain/types';
 import { useTimer } from '@/hooks/use-timer';
 
@@ -54,8 +54,9 @@ export default function GameScreen() {
 
   function handleValidate() {
     const checked = checkExpression(digits, tokens);
-    if (checked.status === 'correct') router.replace('/result');
-    else setResult(checked);
+    if (checked.status !== 'correct') return setResult(checked);
+    const expression = tokens.map((token) => tokenToText(token, digits)).join('');
+    router.replace({ pathname: '/result', params: { ms: timer.elapsedMs(), expression } });
   }
 
   return (
