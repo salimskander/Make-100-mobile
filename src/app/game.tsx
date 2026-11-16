@@ -8,6 +8,7 @@ import { checkExpression } from '@/domain/check-expression';
 import { generateDigits } from '@/domain/generate-digits';
 import { canRemove, createTokens, insertAt, removeAt } from '@/domain/tokens';
 import type { CheckResult, Token } from '@/domain/types';
+import { useTimer } from '@/hooks/use-timer';
 
 // Texte affiché sous le champ après « Valider »
 function toMessage(result: CheckResult | null) {
@@ -21,6 +22,7 @@ export default function GameScreen() {
   const [tokens, setTokens] = useState(createTokens);
   const [cursor, setCursor] = useState(0);
   const [result, setResult] = useState<CheckResult | null>(null);
+  const timer = useTimer();
 
   // Le message s'efface tout seul après 5 secondes
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function GameScreen() {
     setTokens(createTokens());
     setCursor(0);
     setResult(null);
+    timer.reset();
   }
 
   function handleValidate() {
@@ -57,6 +60,7 @@ export default function GameScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.timer}>{timer.seconds} s</Text>
       <ExpressionView digits={digits} tokens={tokens} cursor={cursor} onSelect={setCursor} />
       <Text style={styles.message}>{toMessage(result)}</Text>
       <Keyboard onKey={handleKey} onRemove={handleRemove} />
@@ -69,4 +73,5 @@ export default function GameScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 24, gap: 24 },
   message: { fontSize: 18, textAlign: 'center', minHeight: 24 },
+  timer: { fontSize: 24, textAlign: 'center', fontVariant: ['tabular-nums'] },
 });
