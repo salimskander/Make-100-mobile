@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { tokenToText } from '@/domain/tokens';
 import type { Digits, Token } from '@/domain/types';
 
 type Props = {
@@ -9,12 +10,6 @@ type Props = {
   onSelect: (position: number) => void;
 };
 
-function toText(token: Token, digits: Digits) {
-  if (token.kind === 'digit') return String(digits[token.index]);
-  if (token.kind === 'operator') return token.value;
-  return token.side === 'open' ? '(' : ')';
-}
-
 export function ExpressionView({ digits, tokens, cursor, onSelect }: Props) {
   return (
     <View style={styles.box}>
@@ -23,7 +18,7 @@ export function ExpressionView({ digits, tokens, cursor, onSelect }: Props) {
       </Pressable>
       {tokens.map((token, index) => (
         <Pressable key={index} style={styles.item} onPress={() => onSelect(index + 1)}>
-          <Text style={styles.text}>{toText(token, digits)}</Text>
+          <Text style={styles.text}>{tokenToText(token, digits)}</Text>
           {cursor === index + 1 && <View style={styles.cursor} />}
         </Pressable>
       ))}
