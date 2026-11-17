@@ -12,7 +12,7 @@ import { useShake } from '@/hooks/use-shake';
 // Transforme le paramètre "482915" (envoyé par l'écran de scan) en Digits,
 // ou renvoie null s'il est absent ou invalide.
 function parseDigits(value: string | undefined): Digits | null {
-  if (value === undefined || !/^\d{6}$/.test(value)) return null;
+    if (value === undefined || !/^[1-9]{6}$/.test(value)) return null;
   const [a, b, c, d, e, f] = [...value].map(Number);
   return [a, b, c, d, e, f];
 }
