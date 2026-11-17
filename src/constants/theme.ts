@@ -11,6 +11,7 @@ export const colors = {
   success: '#1A7F37',
   error: '#D70015',
   warning: '#A05A00',
+  gold: '#B8860B', // couronne du premier du classement, seule couleur « honorifique »
 } as const;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 40 } as const;

@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
@@ -52,9 +53,20 @@ export default function LeaderboardScreen() {
       }
       renderItem={({ item, index }) => (
         <Card style={styles.row}>
-          <Text style={styles.rank}>{index + 1}</Text>
+          <Text style={[styles.rank, index === 0 && styles.firstRank]}>{index + 1}</Text>
           <View style={styles.info}>
-            <Text style={styles.pseudo}>{item.pseudo}</Text>
+            <View>
+              {index === 0 && (
+                <SymbolView
+                  name={{ ios: 'crown.fill', android: 'crown', web: 'crown' }}
+                  size={16}
+                  tintColor={colors.gold}
+                  accessibilityLabel="premier"
+                  style={styles.crown}
+                />
+              )}
+              <Text style={styles.pseudo}>{item.pseudo}</Text>
+            </View>
             <Text style={styles.digits}>{item.digits}</Text>
           </View>
           <Text style={styles.time}>{formatTime(item.timeMs)}</Text>
@@ -97,6 +109,16 @@ const styles = StyleSheet.create({
     width: 32,
     textAlign: 'center',
     fontVariant: ['tabular-nums'],
+  },
+  firstRank: {
+    color: colors.text,
+  },
+  // Couronne du premier : posée de travers au-dessus du pseudo, sans décaler le texte
+  crown: {
+    position: 'absolute',
+    top: -12,
+    left: -8,
+    transform: [{ rotate: '-20deg' }],
   },
   info: {
     flex: 1,
