@@ -1,9 +1,12 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { Button } from '@/components/button';
 import { ExpressionView } from '@/components/expression-view';
 import { Keyboard } from '@/components/keyboard';
+import { colors, spacing, typography } from '@/constants/theme';
 import { checkExpression } from '@/domain/check-expression';
 import { generateDigits } from '@/domain/generate-digits';
 import { solve } from '@/domain/solve';
@@ -68,18 +71,34 @@ export default function GameScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.timer}>{timer.seconds} s</Text>
-      <ExpressionView digits={digits} tokens={tokens} cursor={cursor} onSelect={setCursor} />
-      <Text style={styles.message}>{toMessage(result)}</Text>
-      <Keyboard onKey={handleKey} onRemove={handleRemove} />
-      <Button title="Valider" onPress={handleValidate} />
-      <Button title="Abandonner" onPress={handleGiveUp} />
-      <Button title="Nouveau tirage" onPress={handleNewDraw} />
+
+      <Animated.View entering={FadeInDown.duration(600)} style={styles.board}>
+        <ExpressionView digits={digits} tokens={tokens} cursor={cursor} onSelect={setCursor} />
+        <Text style={styles.message}>{toMessage(result)}</Text>
+      </Animated.View>
+
+      <View style={styles.controls}>
+        <Keyboard onKey={handleKey} onRemove={handleRemove} />
+        <Button title="Valider" onPress={handleValidate} />
+        <View style={styles.row}>
+          <View style={styles.half}>
+            <Button title="Abandonner" variant="secondary" onPress={handleGiveUp} />
+          </View>
+          <View style={styles.half}>
+            <Button title="Nouveau tirage" variant="secondary" onPress={handleNewDraw} />
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, gap: 24 },
-  message: { fontSize: 18, textAlign: 'center', minHeight: 24 },
-  timer: { fontSize: 24, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  container: { flex: 1, padding: spacing.xl, gap: spacing.xl },
+  timer: { ...typography.title, color: colors.text, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  board: { flex: 1, justifyContent: 'center', gap: spacing.md },
+  message: { ...typography.body, color: colors.textMuted, textAlign: 'center', minHeight: 24 },
+  controls: { gap: spacing.md },
+  row: { flexDirection: 'row', gap: spacing.md },
+  half: { flex: 1 },
 });
