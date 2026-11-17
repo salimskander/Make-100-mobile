@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
 
@@ -6,10 +6,22 @@ import { ExpressionView } from '@/components/expression-view';
 import { Keyboard } from '@/components/keyboard';
 import { generateDigits } from '@/domain/generate-digits';
 import { canRemove, createTokens, insertAt, removeAt } from '@/domain/tokens';
-import type { Token } from '@/domain/types';
+import type { Digits, Token } from '@/domain/types';
+import { useShake } from '@/hooks/use-shake';
+
+// Transforme le paramètre "482915" (envoyé par l'écran de scan) en Digits,
+// ou renvoie null s'il est absent ou invalide.
+function parseDigits(value: string | undefined): Digits | null {
+    if (value === undefined || !/^[1-9]{6}$/.test(value)) return null;
+  const [a, b, c, d, e, f] = [...value].map(Number);
+  return [a, b, c, d, e, f];
+}
 
 export default function GameScreen() {
-  const [digits, setDigits] = useState(generateDigits);
+  const params = useLocalSearchParams<{ digits?: string }>();
+
+  // Chiffres du scan s'ils existent, sinon un tirage aléatoire
+  const [digits, setDigits] = useState<Digits>(() => parseDigits(params.digits) ?? generateDigits());
   const [tokens, setTokens] = useState(createTokens);
   const [cursor, setCursor] = useState(0);
 
@@ -29,6 +41,9 @@ export default function GameScreen() {
     setTokens(createTokens());
     setCursor(0);
   }
+
+  // Secouer le téléphone = toucher « Nouveau tirage »
+  useShake(handleNewDraw);
 
   return (
     <View style={styles.container}>
