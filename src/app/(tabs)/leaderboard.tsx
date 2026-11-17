@@ -1,5 +1,9 @@
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
+import { Button } from '@/components/button';
+import { Card } from '@/components/card';
+import { colors, spacing, typography } from '@/constants/theme';
 import { useLeaderboard } from '@/hooks/use-leaderboard';
 
 // 42300 ms → "42,3 s" ; 75000 ms → "1 min 15 s"
@@ -19,7 +23,7 @@ export default function LeaderboardScreen() {
   if (status === 'loading' && scores.length === 0) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.textMuted} />
       </View>
     );
   }
@@ -28,9 +32,7 @@ export default function LeaderboardScreen() {
     return (
       <View style={styles.center}>
         <Text style={styles.message}>Impossible de charger le classement.</Text>
-        <Pressable style={styles.button} onPress={reload}>
-          <Text style={styles.buttonText}>Réessayer</Text>
-        </Pressable>
+        <Button title="Réessayer" onPress={reload} />
       </View>
     );
   }
@@ -43,17 +45,20 @@ export default function LeaderboardScreen() {
       refreshing={status === 'loading'}
       contentContainerStyle={styles.list}
       ListEmptyComponent={
-        <Text style={styles.message}>Aucun score pour l’instant. À toi de jouer !</Text>
+        <View style={styles.empty}>
+          <Text style={styles.message}>Aucun score pour l’instant. À toi de jouer !</Text>
+          <Button title="Jouer" variant="secondary" onPress={() => router.push('/game')} />
+        </View>
       }
       renderItem={({ item, index }) => (
-        <View style={styles.row}>
+        <Card style={styles.row}>
           <Text style={styles.rank}>{index + 1}</Text>
           <View style={styles.info}>
             <Text style={styles.pseudo}>{item.pseudo}</Text>
             <Text style={styles.digits}>{item.digits}</Text>
           </View>
           <Text style={styles.time}>{formatTime(item.timeMs)}</Text>
-        </View>
+        </Card>
       )}
     />
   );
@@ -64,55 +69,52 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
-    gap: 16,
+    padding: spacing.xl,
+    gap: spacing.lg,
+  },
+  empty: {
+    alignItems: 'center',
+    gap: spacing.lg,
+    paddingTop: spacing.xxl,
   },
   message: {
-    fontSize: 16,
+    ...typography.body,
+    color: colors.textMuted,
     textAlign: 'center',
   },
-  button: {
-    backgroundColor: '#2563EB',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
   list: {
-    padding: 16,
-    gap: 8,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 12,
+    gap: spacing.md,
   },
   rank: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    width: 28,
+    ...typography.heading,
+    color: colors.textMuted,
+    width: 32,
     textAlign: 'center',
+    fontVariant: ['tabular-nums'],
   },
   info: {
     flex: 1,
+    gap: spacing.xs,
   },
   pseudo: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
+    color: colors.text,
   },
   digits: {
-    color: '#64748B',
+    ...typography.caption,
+    color: colors.textMuted,
     letterSpacing: 2,
   },
   time: {
-    fontSize: 16,
+    ...typography.body,
+    color: colors.text,
     fontVariant: ['tabular-nums'],
   },
 });

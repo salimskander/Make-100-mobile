@@ -1,15 +1,9 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
+import { Button } from '@/components/button';
+import { TextField } from '@/components/text-field';
 import { formStyles } from '@/constants/form-styles';
 import { getAuthErrorMessage, signUp } from '@/services/auth';
 
@@ -72,14 +66,13 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={formStyles.container} keyboardShouldPersistTaps="handled">
         <Text style={formStyles.title}>Créer un compte</Text>
 
-        <TextInput
-          style={formStyles.input}
+        <TextField
           placeholder={`Pseudo (${PSEUDO_MIN_LENGTH} à ${PSEUDO_MAX_LENGTH} caractères)`}
           value={pseudo}
           onChangeText={setPseudo}
@@ -87,8 +80,7 @@ export default function RegisterScreen() {
           maxLength={PSEUDO_MAX_LENGTH}
           editable={!isSubmitting}
         />
-        <TextInput
-          style={formStyles.input}
+        <TextField
           placeholder="Adresse e-mail"
           value={email}
           onChangeText={setEmail}
@@ -97,8 +89,7 @@ export default function RegisterScreen() {
           keyboardType="email-address"
           editable={!isSubmitting}
         />
-        <TextInput
-          style={formStyles.input}
+        <TextField
           placeholder={`Mot de passe (${PASSWORD_MIN_LENGTH} caractères minimum)`}
           value={password}
           onChangeText={setPassword}
@@ -106,8 +97,7 @@ export default function RegisterScreen() {
           autoComplete="new-password"
           editable={!isSubmitting}
         />
-        <TextInput
-          style={formStyles.input}
+        <TextField
           placeholder="Confirmer le mot de passe"
           value={confirmation}
           onChangeText={setConfirmation}
@@ -118,22 +108,13 @@ export default function RegisterScreen() {
 
         {error !== null && <Text style={formStyles.error}>{error}</Text>}
 
-        <Pressable
-          style={[formStyles.button, isSubmitting && formStyles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={formStyles.buttonText}>Créer le compte</Text>
-          )}
-        </Pressable>
-
-        <Link href="/login" replace style={formStyles.link}>
-          Déjà un compte ? Se connecter
-        </Link>
+        <Button title="Créer le compte" onPress={handleSubmit} loading={isSubmitting} />
+        <Button title="J'ai déjà un compte" variant="secondary" onPress={() => router.replace('/login')} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1 },
+});
