@@ -1,7 +1,7 @@
-// Garde uniquement les chiffres de tous les textes lus, dans l'ordre de lecture.
-// Exemple : ["Tel 06 12", "Prix: 34€"] → [0, 6, 1, 2, 3, 4]
+// Garde uniquement les chiffres de 1 à 9 (le 0 n'existe pas dans le jeu), dans l'ordre de lecture.
+// Exemple : ["Tel 06 12", "Prix: 34€"] → [6, 1, 2, 3, 4]
 export function extractDigits(texts: string[]): number[] {
-  return (texts.join(' ').match(/\d/g) ?? []).map(Number);
+  return (texts.join(' ').match(/[1-9]/g) ?? []).map(Number);
 }
 
 // Lit une photo avec ML Kit (sur le téléphone, sans Internet) et renvoie les chiffres trouvés
