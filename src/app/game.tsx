@@ -36,6 +36,7 @@ export default function GameScreen() {
 
   // Chiffres du scan s'ils existent, sinon un tirage aléatoire
   const [digits, setDigits] = useState<Digits>(() => parseDigits(params.digits) ?? generateDigits());
+  const [isScanned, setIsScanned] = useState(() => parseDigits(params.digits) !== null); // partie lancée depuis un scan
   const [tokens, setTokens] = useState(createTokens);
   const [cursor, setCursor] = useState(0);
   const [result, setResult] = useState<CheckResult | null>(null);
@@ -67,13 +68,14 @@ export default function GameScreen() {
     setCursor(0);
     setResult(null);
     timer.reset();
+    setIsScanned(false); // un nouveau tirage est aléatoire : il compte de nouveau
   }
 
   function handleValidate() {
     const checked = checkExpression(digits, tokens);
     if (checked.status !== 'correct') return setResult(checked);
     const ms = timer.elapsedMs();
-    void submitScore(ms, digits.join('')); // envoyé, ou gardé hors ligne
+    if (!isScanned) void submitScore(ms, digits.join('')); // les parties scannées ne sont pas classées
     const expression = tokens.map((token) => tokenToText(token, digits)).join('');
     router.replace({ pathname: '/result', params: { ms, expression } });
   }
