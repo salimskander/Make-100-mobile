@@ -1,9 +1,13 @@
 import { Tabs } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
+import { useScoreSync } from '@/hooks/use-score-sync';
 import { signOut } from '@/services/auth';
 
 export default function TabLayout() {
+  // Envoie les scores gardés hors ligne dès que le réseau est disponible
+  useScoreSync();
+
   return (
     <Tabs
       screenOptions={{
