@@ -1,11 +1,9 @@
 import { Tabs } from 'expo-router';
 import { SymbolView, type AndroidSymbol, type SFSymbol } from 'expo-symbols';
-import { Pressable, StyleSheet, Text, type ColorValue } from 'react-native';
+import type { ColorValue } from 'react-native';
 
-import { headerOptions } from '@/constants/navigation';
-import { colors, spacing, typography } from '@/constants/theme';
+import { colors } from '@/constants/theme';
 import { useScoreSync } from '@/hooks/use-score-sync';
-import { signOut } from '@/services/auth';
 
 // Icône d'onglet : contour si inactif, pleine si actif (iOS). Couleur et taille viennent de la barre.
 function tabIcon(outline: SFSymbol, filled: SFSymbol, material: AndroidSymbol) {
@@ -27,16 +25,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        ...headerOptions,
+        headerShown: false, // pas de barre de titre : chaque onglet affiche son propre grand titre
         sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.separator },
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.textMuted,
-        headerRight: () => (
-          <Pressable accessibilityRole="button" onPress={() => signOut()} hitSlop={12}>
-            <Text style={styles.logout}>Déconnexion</Text>
-          </Pressable>
-        ),
       }}
     >
       <Tabs.Screen
@@ -54,11 +47,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  logout: {
-    ...typography.body,
-    color: colors.text,
-    marginRight: spacing.lg,
-  },
-});

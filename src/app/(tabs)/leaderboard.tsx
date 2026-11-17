@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -19,6 +20,7 @@ function formatTime(timeMs: number): string {
 }
 
 export default function LeaderboardScreen() {
+  const insets = useSafeAreaInsets(); // hauteur de l'encoche et de la barre d'état
   const { scores, status, reload } = useLeaderboard();
 
   if (status === 'loading' && scores.length === 0) {
@@ -44,7 +46,8 @@ export default function LeaderboardScreen() {
       keyExtractor={(score) => score.id}
       onRefresh={reload}
       refreshing={status === 'loading'}
-      contentContainerStyle={styles.list}
+      contentContainerStyle={[styles.list, { paddingTop: insets.top + spacing.lg }]}
+      ListHeaderComponent={<Text style={styles.title}>Classement</Text>} // défile avec la liste
       ListEmptyComponent={
         <View style={styles.empty}>
           <Text style={styles.message}>Aucun score pour l’instant. À toi de jouer !</Text>
@@ -97,6 +100,10 @@ const styles = StyleSheet.create({
   list: {
     padding: spacing.lg,
     gap: spacing.md,
+  },
+  title: {
+    ...typography.title,
+    color: colors.text,
   },
   row: {
     flexDirection: 'row',

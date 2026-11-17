@@ -2,14 +2,18 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { colors, spacing, typography } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useDailyReminder } from '@/hooks/use-daily-reminder';
+import { signOut } from '@/services/auth';
 import { getPendingScores } from '@/services/score-queue';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets(); // hauteur de l'encoche et de la barre d'état
   const { user } = useAuth();
   const reminder = useDailyReminder();
   const [pendingCount, setPendingCount] = useState(0);
@@ -24,7 +28,9 @@ export default function ProfileScreen() {
   );
 
   return (
-    <Animated.View entering={FadeInDown.duration(600)} style={styles.container}>
+    <Animated.View entering={FadeInDown.duration(600)} style={[styles.container, { paddingTop: insets.top + spacing.lg }]}>
+      <Text style={styles.title}>Profil</Text>
+
       {/* Identité du joueur */}
       <Card style={styles.card}>
         <Text style={styles.label}>Pseudo</Text>
@@ -60,6 +66,11 @@ export default function ProfileScreen() {
           <Text style={styles.hint}>Ils seront envoyés automatiquement au retour du réseau.</Text>
         </Card>
       )}
+
+      {/* Action sur le compte : en bas, dans la zone du pouce */}
+      <View style={styles.logout}>
+        <Button title="Se déconnecter" variant="secondary" onPress={() => signOut()} />
+      </View>
     </Animated.View>
   );
 }
@@ -69,6 +80,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.lg,
     gap: spacing.lg,
+  },
+  title: {
+    ...typography.title,
+    color: colors.text,
+  },
+  logout: {
+    marginTop: 'auto', // pousse le bouton tout en bas de l'écran
   },
   card: {
     gap: spacing.xs,
