@@ -1,4 +1,4 @@
-import type { Token } from './types';
+import type { Digits, Token } from './types';
 
 // Au départ, l'expression ne contient que les 6 chiffres
 export function createTokens(): Token[] {
@@ -16,4 +16,11 @@ export function removeAt(tokens: Token[], index: number) {
 // On ne peut effacer que ce qui est juste avant le curseur, et jamais un chiffre
 export function canRemove(tokens: Token[], cursor: number) {
   return cursor > 0 && tokens[cursor - 1].kind !== 'digit';
+}
+
+// Texte affiché pour un token : le chiffre du tirage, l'opérateur ou la parenthèse
+export function tokenToText(token: Token, digits: Digits) {
+  if (token.kind === 'digit') return String(digits[token.index]);
+  if (token.kind === 'operator') return token.value;
+  return token.side === 'open' ? '(' : ')';
 }

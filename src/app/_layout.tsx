@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import { headerOptions } from '@/constants/navigation';
+import { colors } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function RootLayout() {
@@ -10,7 +12,7 @@ export default function RootLayout() {
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.textMuted} />
       </View>
     );
   }
@@ -18,7 +20,7 @@ export default function RootLayout() {
   const isLoggedIn = user !== null;
 
   return (
-    <Stack>
+    <Stack screenOptions={{ ...headerOptions, contentStyle: { backgroundColor: colors.background } }}>
       {/* Écrans réservés aux joueurs connectés */}
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -41,5 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.background,
   },
 });

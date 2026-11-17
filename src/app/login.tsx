@@ -1,14 +1,9 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Text } from 'react-native';
 
+import { Button } from '@/components/button';
+import { TextField } from '@/components/text-field';
 import { formStyles } from '@/constants/form-styles';
 import { getAuthErrorMessage, signIn } from '@/services/auth';
 
@@ -48,8 +43,7 @@ export default function LoginScreen() {
         <Text style={formStyles.success}>Compte créé ! Connecte-toi pour jouer.</Text>
       )}
 
-      <TextInput
-        style={formStyles.input}
+      <TextField
         placeholder="Adresse e-mail"
         value={email}
         onChangeText={setEmail}
@@ -58,8 +52,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
         editable={!isSubmitting}
       />
-      <TextInput
-        style={formStyles.input}
+      <TextField
         placeholder="Mot de passe"
         value={password}
         onChangeText={setPassword}
@@ -70,21 +63,8 @@ export default function LoginScreen() {
 
       {error !== null && <Text style={formStyles.error}>{error}</Text>}
 
-      <Pressable
-        style={[formStyles.button, !canSubmit && formStyles.buttonDisabled]}
-        onPress={handleSubmit}
-        disabled={!canSubmit}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={formStyles.buttonText}>Se connecter</Text>
-        )}
-      </Pressable>
-
-      <Link href="/register" replace style={formStyles.link}>
-        Pas encore de compte ? Créer un compte
-      </Link>
+      <Button title="Se connecter" onPress={handleSubmit} loading={isSubmitting} disabled={!canSubmit} />
+      <Button title="Créer un compte" variant="secondary" onPress={() => router.replace('/register')} />
     </KeyboardAvoidingView>
   );
 }

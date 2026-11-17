@@ -1,15 +1,17 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { colors, pressedStyle, radius, shadow, spacing, typography } from '@/constants/theme';
 import type { Token } from '@/domain/types';
 
-const KEYS: { label: string; token: Token }[] = [
-  { label: '+', token: { kind: 'operator', value: '+' } },
-  { label: '-', token: { kind: 'operator', value: '-' } },
-  { label: '×', token: { kind: 'operator', value: '×' } },
-  { label: '/', token: { kind: 'operator', value: '/' } },
-  { label: '^', token: { kind: 'operator', value: '^' } },
-  { label: '(', token: { kind: 'paren', side: 'open' } },
-  { label: ')', token: { kind: 'paren', side: 'close' } },
+// label : texte affiché ; name : texte lu par les lecteurs d'écran
+const KEYS: { label: string; name: string; token: Token }[] = [
+  { label: '+', name: 'plus', token: { kind: 'operator', value: '+' } },
+  { label: '-', name: 'moins', token: { kind: 'operator', value: '-' } },
+  { label: '×', name: 'fois', token: { kind: 'operator', value: '×' } },
+  { label: '/', name: 'divisé par', token: { kind: 'operator', value: '/' } },
+  { label: '^', name: 'puissance', token: { kind: 'operator', value: '^' } },
+  { label: '(', name: 'parenthèse ouvrante', token: { kind: 'paren', side: 'open' } },
+  { label: ')', name: 'parenthèse fermante', token: { kind: 'paren', side: 'close' } },
 ];
 
 type Props = {
@@ -21,11 +23,22 @@ export function Keyboard({ onKey, onRemove }: Props) {
   return (
     <View style={styles.keyboard}>
       {KEYS.map((key) => (
-        <Pressable key={key.label} style={styles.key} onPress={() => onKey(key.token)}>
+        <Pressable
+          key={key.label}
+          accessibilityRole="button"
+          accessibilityLabel={key.name}
+          style={({ pressed }) => [styles.key, pressed && pressedStyle]}
+          onPress={() => onKey(key.token)}
+        >
           <Text style={styles.label}>{key.label}</Text>
         </Pressable>
       ))}
-      <Pressable style={styles.key} onPress={onRemove}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="effacer"
+        style={({ pressed }) => [styles.key, pressed && pressedStyle]}
+        onPress={onRemove}
+      >
         <Text style={styles.label}>⌫</Text>
       </Pressable>
     </View>
@@ -33,7 +46,17 @@ export function Keyboard({ onKey, onRemove }: Props) {
 }
 
 const styles = StyleSheet.create({
-  keyboard: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12 },
-  key: { width: 64, height: 56, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: '#E5E7EB' },
-  label: { fontSize: 26 },
+  // 4 touches par ligne, qui s'adaptent à la largeur de l'écran
+  keyboard: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  key: {
+    flexBasis: '22%',
+    flexGrow: 1,
+    minHeight: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    boxShadow: shadow.card,
+  },
+  label: { ...typography.heading, color: colors.text },
 });
