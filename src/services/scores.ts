@@ -7,6 +7,8 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  where,
+  writeBatch,
 } from 'firebase/firestore';
 
 import { auth, db } from '@/services/firebase';
@@ -113,4 +115,21 @@ export async function fetchLeaderboard(): Promise<Score[]> {
       digits: String(data.digits),
     };
   });
+}
+
+// Après un changement de pseudo : renomme les scores du joueur,
+// en ligne (Firestore) et dans la file d'attente hors ligne.
+export async function renamePlayerScores(pseudo: string): Promise<void> {
+  const user = auth.currentUser;
+  if (user === null) throw new Error('Aucun joueur connecté.');
+
+  // 1. Scores déjà envoyés : une seule écriture groupée
+  const snapshot = await getDocs(query(scoresCollection, where('uid', '==', user.uid)));
+  const batch = writeBatch(db);
+  snapshot.forEach((scoreDoc) => batch.update(scoreDoc.ref, { pseudo }));
+  await batch.commit();
+
+  // 2. Scores encore en attente sur le téléphone
+  const pending = await getPendingScores();
+  await savePendingScores(pending.map((s) => (s.uid === user.uid ? { ...s, pseudo } : s)));
 }
