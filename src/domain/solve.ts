@@ -13,7 +13,11 @@ export function solve(digits: Digits): string | null {
 
     const found: Found = new Map();
     const glued = digits.slice(start, end).join(''); // chiffres collés : 1, 5, 3 → '153'
-    if (glued.length === 1 || glued[0] !== '0') found.set(Number(glued), glued);
+    if (glued.length === 1 || glued[0] !== '0') {
+      found.set(Number(glued), glued);
+      // Moins devant le premier nombre (-7-5+1+111) : un moins ailleurs se réécrit en soustraction
+      if (start === 0) found.set(-Number(glued), `(-${glued})`);
+    }
 
     // On coupe le morceau en deux à chaque endroit, et on combine les deux côtés
     for (let split = start + 1; split < end; split++) {
