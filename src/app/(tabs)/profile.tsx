@@ -1,8 +1,9 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { colors, spacing, typography } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
@@ -13,10 +14,14 @@ export default function ProfileScreen() {
   const { user } = useAuth();
   const reminder = useDailyReminder();
   const [pendingCount, setPendingCount] = useState(0);
+  // Copie locale du pseudo : Firebase modifie l'objet user sans prévenir React,
+  // donc on la relit à chaque retour sur l'onglet
+  const [pseudo, setPseudo] = useState(user?.displayName ?? '');
 
-  // À chaque affichage de l'onglet : combien de scores du joueur attendent le réseau ?
   useFocusEffect(
     useCallback(() => {
+      setPseudo(user?.displayName ?? '');
+      // Combien de scores du joueur attendent le réseau ?
       getPendingScores()
         .then((scores) => setPendingCount(scores.filter((s) => s.uid === user?.uid).length))
         .catch(() => setPendingCount(0));
@@ -28,9 +33,12 @@ export default function ProfileScreen() {
       {/* Identité du joueur */}
       <Card style={styles.card}>
         <Text style={styles.label}>Pseudo</Text>
-        <Text style={styles.value}>{user?.displayName ?? '—'}</Text>
+        <Text style={styles.value}>{pseudo || '—'}</Text>
         <Text style={styles.label}>E-mail</Text>
         <Text style={styles.value}>{user?.email ?? '—'}</Text>
+        <View style={styles.editButton}>
+          <Button title="Modifier le profil" variant="secondary" onPress={() => router.push('/edit-profile')} />
+        </View>
       </Card>
 
       {/* Rappel quotidien */}
@@ -85,6 +93,9 @@ const styles = StyleSheet.create({
   hint: {
     ...typography.caption,
     color: colors.textMuted,
+  },
+  editButton: {
+    marginTop: spacing.md,
   },
   row: {
     flexDirection: 'row',

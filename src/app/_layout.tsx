@@ -27,6 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="game" options={{ title: 'Partie' }} />
         <Stack.Screen name="result" options={{ title: 'Résultat' }} />
         <Stack.Screen name="scan" options={{ title: 'Scanner' }} />
+        <Stack.Screen name="edit-profile" options={{ title: 'Modifier le profil' }} />
       </Stack.Protected>
 
       {/* Écrans accessibles uniquement sans être connecté */}
