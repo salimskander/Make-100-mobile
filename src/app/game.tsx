@@ -14,6 +14,7 @@ import { canRemove, createTokens, insertAt, removeAt, tokenToText } from '@/doma
 import type { CheckResult, Digits, Token } from '@/domain/types';
 import { useShake } from '@/hooks/use-shake';
 import { useTimer } from '@/hooks/use-timer';
+import { submitScore } from '@/services/scores';
 
 // Transforme le paramètre "482915" (envoyé par l'écran de scan) en Digits,
 // ou renvoie null s'il est absent ou invalide.
@@ -71,8 +72,10 @@ export default function GameScreen() {
   function handleValidate() {
     const checked = checkExpression(digits, tokens);
     if (checked.status !== 'correct') return setResult(checked);
+    const ms = timer.elapsedMs();
+    void submitScore(ms, digits.join('')); // envoyé, ou gardé hors ligne
     const expression = tokens.map((token) => tokenToText(token, digits)).join('');
-    router.replace({ pathname: '/result', params: { ms: timer.elapsedMs(), expression } });
+    router.replace({ pathname: '/result', params: { ms, expression } });
   }
 
   function handleGiveUp() {
