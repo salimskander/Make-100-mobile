@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -11,7 +12,8 @@ export default function ResultScreen() {
   const won = solution === undefined;
 
   return (
-    <View style={styles.container}>
+    // Zone sûre du bas : les boutons restent au-dessus de la barre de navigation du téléphone
+    <SafeAreaView edges={['bottom']} style={styles.container}>
       <Animated.View entering={FadeInDown.duration(600)} style={styles.hero}>
         <Text style={[styles.title, won && styles.success]}>{won ? 'Bravo.' : 'Dommage.'}</Text>
         {won && <Text style={styles.time}>{(Number(ms) / 1000).toFixed(2)} s</Text>}
@@ -24,7 +26,7 @@ export default function ResultScreen() {
         <Button title="Rejouer" onPress={() => router.replace('/game')} />
         <Button title="Retour à l'accueil" variant="secondary" onPress={() => router.back()} />
       </Animated.View>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -11,6 +11,8 @@ import {
   View,
 } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Button } from '@/components/button';
 import { colors, pressedStyle, radius, shadow, spacing, typography } from '@/constants/theme';
 import { scanDigits } from '@/services/ocr';
@@ -20,6 +22,7 @@ const REQUIRED_DIGITS = 6;
 type Step = 'camera' | 'reading' | 'select';
 
 export default function ScanScreen() {
+  const insets = useSafeAreaInsets(); // hauteur de la barre de navigation du téléphone, en bas
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
 
@@ -109,7 +112,7 @@ export default function ScanScreen() {
   if (step === 'select') {
     const isComplete = selectedIndexes.length === REQUIRED_DIGITS;
     return (
-      <ScrollView contentContainerStyle={styles.selectContainer}>
+      <ScrollView contentContainerStyle={[styles.selectContainer, { paddingBottom: insets.bottom + spacing.xl }]}>
         <Text style={styles.title}>
           Choisis {REQUIRED_DIGITS} chiffres ({selectedIndexes.length}/{REQUIRED_DIGITS})
         </Text>
@@ -157,7 +160,7 @@ export default function ScanScreen() {
         <Text style={styles.overlayText}>Place les chiffres dans le cadre</Text>
       </View>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { bottom: insets.bottom + spacing.xxl }]}>
         {error !== null && <Text style={styles.errorOnCamera}>{error}</Text>}
         {/* Pilule blanche : la pilule noire disparaîtrait sur l'image sombre de la caméra */}
         <Button
@@ -217,8 +220,7 @@ const styles = StyleSheet.create({
     color: colors.onPrimary,
   },
   bottomBar: {
-    position: 'absolute',
-    bottom: spacing.xxl,
+    position: 'absolute', // la position du bas est calculée avec la zone sûre, dans le composant
     left: spacing.xl,
     right: spacing.xl,
     gap: spacing.md,

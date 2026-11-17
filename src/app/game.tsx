@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { ExpressionView } from '@/components/expression-view';
@@ -89,7 +90,8 @@ export default function GameScreen() {
   useShake(handleNewDraw);
 
   return (
-    <View style={styles.container}>
+    // Zone sûre du bas : les boutons restent au-dessus de la barre de navigation du téléphone
+    <SafeAreaView edges={['bottom']} style={styles.container}>
       <Text style={styles.timer}>{timer.seconds} s</Text>
 
       <Animated.View entering={FadeInDown.duration(600)} style={styles.board}>
@@ -109,7 +111,7 @@ export default function GameScreen() {
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
