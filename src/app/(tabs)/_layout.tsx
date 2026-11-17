@@ -3,9 +3,13 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { headerOptions } from '@/constants/navigation';
 import { colors, spacing, typography } from '@/constants/theme';
+import { useScoreSync } from '@/hooks/use-score-sync';
 import { signOut } from '@/services/auth';
 
 export default function TabLayout() {
+  // Envoie les scores gardés hors ligne dès que le réseau est disponible
+  useScoreSync();
+
   return (
     <Tabs
       screenOptions={{

@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import {
   addDoc,
   collection,
@@ -9,6 +10,12 @@ import {
 } from 'firebase/firestore';
 
 import { auth, db } from '@/services/firebase';
+import {
+  addPendingScore,
+  getPendingScores,
+  savePendingScores,
+  type PendingScore,
+} from '@/services/score-queue';
 
 export type Score = {
   id: string;
@@ -17,22 +24,80 @@ export type Score = {
   digits: string;
 };
 
+// 'sent' : envoyé à Firestore ; 'queued' : gardé sur le téléphone, envoyé plus tard
+export type SubmitResult = 'sent' | 'queued';
+
 const LEADERBOARD_SIZE = 10;
 const scoresCollection = collection(db, 'scores');
 
+async function isOnline(): Promise<boolean> {
+  const state = await NetInfo.fetch();
+  return state.isConnected === true && state.isInternetReachable !== false;
+}
+
+async function sendScore(score: PendingScore): Promise<void> {
+  await addDoc(scoresCollection, { ...score, createdAt: serverTimestamp() });
+}
+
 // Enregistre le score du joueur connecté (appelé par l'écran de jeu en cas de victoire)
-export async function submitScore(timeMs: number, digits: string): Promise<void> {
+export async function submitScore(timeMs: number, digits: string): Promise<SubmitResult> {
   const user = auth.currentUser;
   if (user === null) {
     throw new Error('Aucun joueur connecté.');
   }
-  await addDoc(scoresCollection, {
+  const score: PendingScore = {
     uid: user.uid,
     pseudo: user.displayName ?? 'Anonyme',
     timeMs,
     digits,
-    createdAt: serverTimestamp(),
-  });
+    playedAt: Date.now(),
+  };
+
+  if (!(await isOnline())) {
+    await addPendingScore(score);
+    return 'queued';
+  }
+  try {
+    await sendScore(score);
+    return 'sent';
+  } catch {
+    await addPendingScore(score); // l'envoi a échoué : on le garde pour plus tard
+    return 'queued';
+  }
+}
+
+let isFlushing = false;
+
+// Envoie les scores en attente du joueur connecté. Renvoie le nombre de scores envoyés.
+export async function flushPendingScores(): Promise<number> {
+  const user = auth.currentUser;
+  if (isFlushing || user === null) return 0;
+
+  isFlushing = true;
+  try {
+    const pending = await getPendingScores();
+    const remaining: PendingScore[] = [];
+    let sentCount = 0;
+
+    for (const score of pending) {
+      // Les règles Firestore n'autorisent que l'envoi de ses propres scores
+      if (score.uid !== user.uid) {
+        remaining.push(score);
+        continue;
+      }
+      try {
+        await sendScore(score);
+        sentCount++;
+      } catch {
+        remaining.push(score); // nouvel échec : il reste dans la file
+      }
+    }
+
+    await savePendingScores(remaining);
+    return sentCount;
+  } finally {
+    isFlushing = false;
+  }
 }
 
 // Récupère les meilleurs temps, du plus rapide au plus lent
