@@ -1,7 +1,10 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { Card } from '@/components/card';
+import { colors, spacing, typography } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useDailyReminder } from '@/hooks/use-daily-reminder';
 import { getPendingScores } from '@/services/score-queue';
@@ -21,78 +24,84 @@ export default function ProfileScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View entering={FadeInDown.duration(600)} style={styles.container}>
       {/* Identité du joueur */}
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.label}>Pseudo</Text>
         <Text style={styles.value}>{user?.displayName ?? '—'}</Text>
         <Text style={styles.label}>E-mail</Text>
         <Text style={styles.value}>{user?.email ?? '—'}</Text>
-      </View>
+      </Card>
 
       {/* Rappel quotidien */}
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <View style={styles.row}>
           <View style={styles.rowText}>
             <Text style={styles.value}>Rappel du défi quotidien</Text>
             <Text style={styles.hint}>Une notification chaque jour à 18 h</Text>
           </View>
           {reminder.isLoading ? (
-            <ActivityIndicator />
+            <ActivityIndicator color={colors.textMuted} />
           ) : (
-            <Switch value={reminder.isEnabled} onValueChange={reminder.setEnabled} />
+            <Switch
+              value={reminder.isEnabled}
+              onValueChange={reminder.setEnabled}
+              trackColor={{ true: colors.primary }}
+            />
           )}
         </View>
         {reminder.error !== null && <Text style={styles.error}>{reminder.error}</Text>}
-      </View>
+      </Card>
 
       {/* Scores gardés hors ligne */}
       {pendingCount > 0 && (
-        <View style={styles.card}>
-          <Text style={styles.value}>
-            {pendingCount} score(s) en attente d’envoi
-          </Text>
+        <Card style={styles.card}>
+          <Text style={styles.offline}>{pendingCount} score(s) en attente d’envoi</Text>
           <Text style={styles.hint}>Ils seront envoyés automatiquement au retour du réseau.</Text>
-        </View>
+        </Card>
       )}
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    gap: 16,
+    padding: spacing.lg,
+    gap: spacing.lg,
   },
   card: {
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 6,
+    gap: spacing.xs,
   },
   label: {
-    color: '#64748B',
-    fontSize: 13,
+    ...typography.caption,
+    color: colors.textMuted,
   },
   value: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
+    color: colors.text,
   },
   hint: {
-    color: '#64748B',
+    ...typography.caption,
+    color: colors.textMuted,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   rowText: {
     flex: 1,
-    gap: 4,
+    gap: spacing.xs,
   },
   error: {
-    color: '#DC2626',
+    ...typography.caption,
+    color: colors.error,
+  },
+  offline: {
+    ...typography.body,
+    fontWeight: '600',
+    color: colors.warning,
   },
 });

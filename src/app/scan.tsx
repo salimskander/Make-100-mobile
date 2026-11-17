@@ -11,6 +11,8 @@ import {
   View,
 } from 'react-native';
 
+import { Button } from '@/components/button';
+import { colors, pressedStyle, radius, shadow, spacing, typography } from '@/constants/theme';
 import { scanDigits } from '@/services/ocr';
 
 const REQUIRED_DIGITS = 6;
@@ -73,7 +75,7 @@ export default function ScanScreen() {
   if (!permission) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.textMuted} />
       </View>
     );
   }
@@ -85,13 +87,9 @@ export default function ScanScreen() {
           L’appareil photo est nécessaire pour lire les chiffres d’une photo.
         </Text>
         {permission.canAskAgain ? (
-          <Pressable style={styles.button} onPress={requestPermission}>
-            <Text style={styles.buttonText}>Autoriser l’appareil photo</Text>
-          </Pressable>
+          <Button title="Autoriser l’appareil photo" onPress={requestPermission} />
         ) : (
-          <Pressable style={styles.button} onPress={() => Linking.openSettings()}>
-            <Text style={styles.buttonText}>Ouvrir les réglages</Text>
-          </Pressable>
+          <Button title="Ouvrir les réglages" onPress={() => Linking.openSettings()} />
         )}
       </View>
     );
@@ -101,8 +99,8 @@ export default function ScanScreen() {
   if (step === 'reading') {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.message}>Lecture des chiffres…</Text>
+        <ActivityIndicator size="large" color={colors.textMuted} />
+        <Text style={styles.hint}>Lecture des chiffres…</Text>
       </View>
     );
   }
@@ -124,7 +122,9 @@ export default function ScanScreen() {
             return (
               <Pressable
                 key={index}
-                style={[styles.digit, isSelected && styles.digitSelected]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                style={({ pressed }) => [styles.digit, isSelected && styles.digitSelected, pressed && pressedStyle]}
                 onPress={() => toggleDigit(index)}
               >
                 <Text style={[styles.digitText, isSelected && styles.digitTextSelected]}>
@@ -136,16 +136,8 @@ export default function ScanScreen() {
           })}
         </View>
 
-        <Pressable
-          style={[styles.button, !isComplete && styles.buttonDisabled]}
-          onPress={startGame}
-          disabled={!isComplete}
-        >
-          <Text style={styles.buttonText}>Lancer la partie</Text>
-        </Pressable>
-        <Pressable onPress={() => setStep('camera')}>
-          <Text style={styles.link}>Reprendre une photo</Text>
-        </Pressable>
+        <Button title="Lancer la partie" onPress={startGame} disabled={!isComplete} />
+        <Button title="Reprendre une photo" variant="secondary" onPress={() => setStep('camera')} />
       </ScrollView>
     );
   }
@@ -167,13 +159,13 @@ export default function ScanScreen() {
 
       <View style={styles.bottomBar}>
         {error !== null && <Text style={styles.errorOnCamera}>{error}</Text>}
-        <Pressable
-          style={[styles.captureButton, !isCameraReady && styles.buttonDisabled]}
+        {/* Pilule blanche : la pilule noire disparaîtrait sur l'image sombre de la caméra */}
+        <Button
+          title="Prendre la photo"
+          variant="secondary"
           onPress={takePhotoAndRead}
           disabled={!isCameraReady}
-        >
-          <Text style={styles.buttonText}>Prendre la photo</Text>
-        </Pressable>
+        />
       </View>
     </View>
   );
@@ -184,118 +176,95 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
-    gap: 16,
+    padding: spacing.xl,
+    gap: spacing.lg,
   },
   message: {
-    fontSize: 16,
+    ...typography.body,
+    color: colors.text,
     textAlign: 'center',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...typography.heading,
+    color: colors.text,
     textAlign: 'center',
   },
   hint: {
-    color: '#64748B',
+    ...typography.caption,
+    color: colors.textMuted,
     textAlign: 'center',
   },
-  button: {
-    backgroundColor: '#2563EB',
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  link: {
-    color: '#2563EB',
-    textAlign: 'center',
-  },
+  // L'image de la caméra est sombre : fond noir le temps qu'elle s'affiche, textes en blanc
   cameraContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primary,
   },
   overlay: {
     ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   frame: {
     width: '85%',
     height: 140,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.onPrimary,
+    borderRadius: radius.lg,
   },
   overlayText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.body,
+    color: colors.onPrimary,
   },
   bottomBar: {
     position: 'absolute',
-    bottom: 40,
-    left: 24,
-    right: 24,
-    gap: 12,
+    bottom: spacing.xxl,
+    left: spacing.xl,
+    right: spacing.xl,
+    gap: spacing.md,
   },
   errorOnCamera: {
-    color: '#FFFFFF',
-    backgroundColor: '#DC2626',
-    padding: 8,
-    borderRadius: 8,
+    ...typography.caption,
+    color: colors.onPrimary,
+    backgroundColor: colors.error,
+    padding: spacing.sm,
+    borderRadius: radius.md,
     textAlign: 'center',
   },
-  captureButton: {
-    backgroundColor: '#2563EB',
-    borderRadius: 32,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
   selectContainer: {
-    padding: 24,
-    gap: 16,
+    padding: spacing.xl,
+    gap: spacing.lg,
   },
   digitGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: spacing.sm,
     justifyContent: 'center',
   },
   digit: {
     width: 52,
     height: 52,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#CBD5E1',
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    boxShadow: shadow.card,
     justifyContent: 'center',
     alignItems: 'center',
   },
   digitSelected: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
+    backgroundColor: colors.primary,
   },
   digitText: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    ...typography.heading,
+    color: colors.text,
   },
   digitTextSelected: {
-    color: '#FFFFFF',
+    color: colors.onPrimary,
   },
   digitOrder: {
     position: 'absolute',
     top: 2,
     right: 4,
-    fontSize: 11,
-    color: '#FFFFFF',
+    ...typography.caption,
+    color: colors.onPrimary,
   },
 });
